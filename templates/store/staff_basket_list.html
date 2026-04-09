@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Customer baskets — FreshMart{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <h1 class="h3 mb-0">Customer baskets</h1>
+  <p class="text-muted mb-0 small">Review baskets and open details to approve or deny.</p>
+</div>
+<div class="table-responsive shadow-sm rounded-3 border bg-white">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Basket ID</th>
+        <th scope="col">Customer</th>
+        <th scope="col">Status</th>
+        <th scope="col" class="text-end">Items</th>
+        <th scope="col" class="text-end">Total</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for basket in baskets %}
+        <tr>
+          <td><code>#{{ basket.pk }}</code></td>
+          <td>{{ basket.customer.username }}</td>
+          <td>
+            {% if basket.status == 'pending' %}
+              <span class="badge text-bg-warning text-dark">Pending</span>
+            {% elif basket.status == 'approved' %}
+              <span class="badge text-bg-success">Approved</span>
+            {% else %}
+              <span class="badge text-bg-danger">Denied</span>
+            {% endif %}
+          </td>
+          <td class="text-end">{{ basket.items.count }}</td>
+          <td class="text-end">${{ basket.total }}</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'staff_basket_detail' basket.pk %}">View</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-5">No baskets yet.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

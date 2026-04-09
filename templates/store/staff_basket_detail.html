@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Basket #{{ basket.pk }} — FreshMart{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'staff_basket_list' %}" class="btn btn-sm btn-outline-secondary">&larr; All baskets</a>
+</div>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+          <span class="fw-semibold">Basket #{{ basket.pk }}</span>
+          <span class="text-muted small ms-2">{{ basket.created_at|date:"M j, Y H:i" }}</span>
+        </div>
+        {% if basket.status == 'pending' %}
+          <span class="badge text-bg-warning text-dark">Pending review</span>
+        {% elif basket.status == 'approved' %}
+          <span class="badge text-bg-success">Approved</span>
+        {% else %}
+          <span class="badge text-bg-danger">Denied</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Product ID</th>
+                <th>Name</th>
+                <th class="text-end">Price</th>
+                <th class="text-end">Qty</th>
+                <th class="text-end">Line</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in basket.items.all %}
+                <tr>
+                  <td><code>#{{ item.product_id }}</code></td>
+                  <td>{{ item.product.name }}</td>
+                  <td class="text-end">${{ item.product.price }}</td>
+                  <td class="text-end">{{ item.quantity }}</td>
+                  <td class="text-end">${{ item.line_total }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="text-muted text-center py-4">No line items.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="fw-semibold mt-3 mb-0">Basket total: <span class="text-primary">${{ basket.total }}</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm mb-3">
+      <div class="card-header bg-white fw-semibold">Customer</div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Username:</strong> {{ basket.customer.username }}</p>
+        <p class="mb-0"><strong>Email:</strong> {{ basket.customer.email|default:"—" }}</p>
+      </div>
+    </div>
+    {% if basket.status == 'pending' %}
+      <div class="card border-warning shadow-sm">
+        <div class="card-body">
+          <h2 class="h6">Staff actions</h2>
+          <p class="small text-muted">Approving creates a purchase record for the customer.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <form method="post" action="{% url 'staff_basket_approve' basket.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success" {% if basket.items.count == 0 %}disabled{% endif %}>Approve basket</button>
+            </form>
+            <form method="post" action="{% url 'staff_basket_deny' basket.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger">Deny basket</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% elif basket.status == 'approved' and basket.order %}
+      <div class="alert alert-success mb-0">
+        Linked order <strong>#{{ basket.order.pk }}</strong> · total ${{ basket.order.total }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
