@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Purchase history — FreshMart{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">My purchase history</h1>
+<p class="text-muted">Orders are created when staff <strong>approve</strong> your basket.</p>
+{% if orders %}
+  {% for order in orders %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+          <span class="fw-semibold">Order #{{ order.pk }}</span>
+          <span class="text-muted small ms-2">{{ order.created_at|date:"M j, Y H:i" }}</span>
+        </div>
+        <span class="badge text-bg-primary fs-6">${{ order.total }}</span>
+      </div>
+      <div class="card-body pt-3">
+        <div class="table-responsive">
+          <table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th class="text-end">Unit price</th>
+                <th class="text-end">Qty</th>
+                <th class="text-end">Line total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for line in order.items.all %}
+                <tr>
+                  <td>{{ line.product_name }}{% if line.product %} <span class="text-muted small">(#{{ line.product_id }})</span>{% endif %}</td>
+                  <td class="text-end">${{ line.unit_price }}</td>
+                  <td class="text-end">{{ line.quantity }}</td>
+                  <td class="text-end">${{ line.line_total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="alert alert-info">You have no orders yet. Approved baskets will show up here.</div>
+{% endif %}
+{% endblock %}

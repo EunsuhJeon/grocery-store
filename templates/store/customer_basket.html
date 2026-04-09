@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}My basket — FreshMart{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Basket status</h1>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold">Current pending basket</div>
+      <div class="card-body">
+        {% if pending_basket %}
+          <p class="small text-muted mb-2">Basket #{{ pending_basket.pk }} · submitted {{ pending_basket.created_at|date:"M j, Y H:i" }}</p>
+          {% if pending_basket.items.all %}
+            <ul class="list-group list-group-flush mb-3">
+              {% for item in pending_basket.items.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                  <span class="text-muted">${{ item.line_total }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+            <p class="fw-semibold mb-0">Estimated total: <span class="text-primary">${{ pending_basket.total }}</span></p>
+            <p class="small text-muted mt-2 mb-0">Waiting for staff approval.</p>
+          {% else %}
+            <p class="text-muted mb-0">Your basket is empty. <a href="{% url 'customer_product_list' %}">Browse products</a>.</p>
+          {% endif %}
+        {% else %}
+          <p class="text-muted mb-0">You do not have an open basket yet. Items will appear here after you add products from the shop.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold">Recent basket decisions</div>
+      <div class="card-body">
+        {% if basket_history %}
+          <div class="list-group list-group-flush">
+            {% for b in basket_history %}
+              <div class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <span class="fw-medium">Basket #{{ b.pk }}</span>
+                    <span class="text-muted small ms-2">{{ b.created_at|date:"M j, Y" }}</span>
+                  </div>
+                  {% if b.status == 'approved' %}
+                    <span class="badge text-bg-success">Approved</span>
+                  {% elif b.status == 'denied' %}
+                    <span class="badge text-bg-danger">Denied</span>
+                  {% else %}
+                    <span class="badge text-bg-secondary">{{ b.get_status_display }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">No completed basket reviews yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

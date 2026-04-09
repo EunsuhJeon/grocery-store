@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Shop — FreshMart{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h1 class="h3 mb-0">Products</h1>
+    <p class="text-muted mb-0 small">Product ID, name, and price are listed for each item.</p>
+  </div>
+  <a class="btn btn-outline-primary" href="{% url 'customer_basket' %}">View my basket</a>
+</div>
+<div class="table-responsive shadow-sm rounded-3 border bg-white">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Product ID</th>
+        <th scope="col">Name</th>
+        <th scope="col" class="text-end">Price</th>
+        <th scope="col" style="width: 220px;">Add to basket</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+        <tr>
+          <td><code>#{{ product.pk }}</code></td>
+          <td class="fw-medium">{{ product.name }}</td>
+          <td class="text-end">${{ product.price }}</td>
+          <td>
+            <form method="post" action="{% url 'customer_add_to_basket' %}" class="d-flex flex-wrap gap-2 align-items-center">
+              {% csrf_token %}
+              <input type="hidden" name="product" value="{{ product.pk }}">
+              <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="width: 4.5rem;" aria-label="Quantity for {{ product.name }}">
+              <button type="submit" class="btn btn-primary btn-sm">Add</button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-5">No products yet. Ask staff to add inventory.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

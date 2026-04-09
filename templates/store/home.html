@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Home — FreshMart{% endblock %}
+{% block content %}
+<div class="p-4 p-lg-5 rounded-4 bg-hero border shadow-sm mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <h1 class="display-5 fw-bold text-dark mb-3">Welcome to FreshMart</h1>
+      <p class="lead text-secondary mb-4">
+        Customers browse products, build a basket, and track approvals. Staff manage the catalog,
+        review baskets, and look up purchase history.
+      </p>
+      {% if user.is_authenticated %}
+        <p class="mb-0">
+          {% if user.is_superuser %}
+            <a class="btn btn-dark btn-lg" href="{% url 'admin:index' %}">Open Django admin</a>
+          {% elif user.is_customer %}
+            <a class="btn btn-primary btn-lg me-2" href="{% url 'customer_product_list' %}">Start shopping</a>
+            <a class="btn btn-outline-secondary btn-lg" href="{% url 'customer_basket' %}">View basket</a>
+          {% elif user.is_store_staff or user.is_staff %}
+            <a class="btn btn-primary btn-lg me-2" href="{% url 'staff_product_list' %}">Manage products</a>
+            <a class="btn btn-outline-secondary btn-lg" href="{% url 'staff_basket_list' %}">Review baskets</a>
+          {% endif %}
+        </p>
+      {% else %}
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-primary btn-lg" href="{% url 'register_customer' %}">Create customer account</a>
+          <a class="btn btn-outline-primary btn-lg" href="{% url 'register_staff' %}">Staff registration</a>
+          <a class="btn btn-outline-dark btn-lg" href="{% url 'login' %}">Log in</a>
+        </div>
+        <p class="small text-muted mt-3 mb-0">
+          Store administrators use the Django admin at <code>/admin/</code> (create a superuser with
+          <code>createsuperuser</code>).
+        </p>
+      {% endif %}
+    </div>
+    <div class="col-lg-5">
+      <div class="card border-0 shadow">
+        <div class="card-body p-4">
+          <h2 class="h5 card-title">Role-based access</h2>
+          <ul class="list-unstyled mb-0 small">
+            <li class="mb-2"><span class="badge text-bg-success me-2">Customer</span> Shop, basket, order history</li>
+            <li class="mb-2"><span class="badge text-bg-primary me-2">Staff</span> Products, basket approval, customers</li>
+            <li><span class="badge text-bg-dark me-2">Admin</span> Django admin panel</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
